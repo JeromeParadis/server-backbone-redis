@@ -1,5 +1,3 @@
-Copyright (c) 2011 Jerome Paradis
-
 # Documentation
 
 * [Wiki](https://github.com/JeromeParadis/server-backbone-redis/wiki)
