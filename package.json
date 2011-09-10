@@ -1,0 +1,16 @@
+{
+  "name"          : "server-backbone-redis",
+  "description"   : "Server-side backbone redis store for node.js. Also supports object/JSON export/import for server-side and client-side.",
+  "url"           : "http://github.com/JeromeParadis/server-backbone-redis/",
+  "keywords"      : ["server-side","backbone","redis","store","data","model"],
+  "author"        : "Jerome Paradis <jparadis@paradivision.com>",
+  "contributors"  : [],
+  "dependencies"  : {
+    "redis"       : ">=0.6.7",
+    "underscore"  : ">=1.0.7",
+    "redis"       : "0.3.1"
+  },
+  "lib"           : "./lib",
+  "main"          : "server-backbone-redis.js",
+  "version"       : "0.0.1"
+}
