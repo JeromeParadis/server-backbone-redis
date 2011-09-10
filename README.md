@@ -10,7 +10,9 @@ Copyright (c) 2011 Jerome Paradis
 	npm install backbone
 	npm install redis
 
-# Install
+# Install (coming soon to NPM once I upload examples and tests from another project)
+
+Not just yet!!
 
 	npm install server-backbone-redis
 	
