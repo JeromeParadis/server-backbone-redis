@@ -4,8 +4,8 @@ I created this module because in a socket.io app I'm working on, all data is cre
 
 # Documentation
 
-* [Wiki](https://github.com/JeromeParadis/server-backbone-redis/wiki)
-* or at the bottome of this README
+* For up-to-date documentation, see the [Wiki](https://github.com/JeromeParadis/server-backbone-redis/wiki)
+* I sometimes update the doc at the bottom of this README
 
 # Dependencies
 
@@ -29,7 +29,11 @@ This module does two things:
 ## Backbone Models
 You can share your Backbone models for a single definition on the server and the client. Example of a ./models/models.js file. It uses CommonJS to include the right stuff when included in a node application. On the server side and client side, you will always use models.Backbone instead of Backbone.
 
-	(function () {
+Create the name property in your models to define the object name. This name will be reused to generate Redis keys. Example:
+
+* Model name = "user", ID=2 -> Redis key = "user:2"
+	
+	    (function () {
 	    var server = false, models;
 	    if (typeof exports !== 'undefined') {
 		Backbone = require('../../../server-backbone-redis');
@@ -68,7 +72,7 @@ You can share your Backbone models for a single definition on the server and the
 
 
 
-	})()
+	    })()
 
 ## New JSON export/import model methods (available on server and client)
 ### xport()
@@ -82,6 +86,20 @@ EJS example:
     
 
 ## New server-side Backbone properties/methods
+### search(model_class,pattern,cb,err_cb)
+
+Example:
+
+    models.Backbone.search(models.User,"*",function(results) {
+        // follow the fetch collections results where results are an array of Backbone model attributes and not Backbone model objects
+        // NOTE: if (new models.User()).name === "user", then Redis is searched with "keys user:*" command
+        // So, we can load the collections ourselves
+        var users = new models.UsersCollection(results);
+        ... do something with users Backbone collection
+    },function(err) { console.log(err); });
+
+### search_delete(model_class,keypattern,cb,cb_err)
+Same as search() but will delete the objects of model_class who's IDs match the keypattern
 ### setClient(rc)
 Setup Redis client to avoid creating a second Redis connection.
 ### initServer(app)
@@ -96,7 +114,6 @@ Once your models.js file is defined like above to include the server-side redis 
     var models = require('./models/models');
 You can access Backbone through models.Backbone.
 
-
 ## Typical includes on the client:
 
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script> 
@@ -104,6 +121,63 @@ You can access Backbone through models.Backbone.
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.5.1/backbone-min.js"></script> 
     <script type="text/javascript" src="/models/models.js"></script> 
     <script type="text/javascript" src="/sbr/backbone-exp-imp.js"></script> 
+
+
+## Redis data store
+Server-side, you can use standard Backbone methods to save/persist to redis. The store uses the xport() and mport() methods to save and fetch the objects content in Redis. You can use the usual Backbone model and collections methods such as:
+
+* model.fetch()
+* model.save()
+* collection.fetch()
+
+You can supply your own Backbone IDs through the id property/attributes in Backbone models. If not supplied, the record will be incremented through a Redis incr counter. For example, the User model with it's name="user" will internally use these Redis keys:
+
+    Record keys -> user:[ID]  (i.e.: "user:1", "user:2", "user:3", etc.
+    Counter key  -> "next.user.id"
+
+You can specify your own keys to manually create relationship records. For example:
+	models.User = Backbone.Model.extend({
+		defaults: {
+			"id":		null,
+			"name":		null
+		},
+		name: "user"
+	});
+
+		
+	models.Group = Backbone.Model.extend({
+		defaults: {
+			"id":		null
+			"name":		null
+		},
+		name: "group"
+	});
+
+	models.UserGroup = Backbone.Model.extend({
+		defaults: {
+			"id":		null
+			"specs":	null
+		},
+		name: "usergroup"
+	});
+	...
+	// user is loaded or fetched and has an id = 1 (Redis key: "user:1")
+	//
+	// group1 and group2 are fetched/saved and have ids 1 and 2 (Redis keys "group:1" & "group:2"
+	...
+	var usergroup1 = new models.UserGroup({userid:user.id,groupid:group1.id});
+	usergroup1.id = "group:" + group1.id + ":user:" + user.id;
+	usergroup1.save({},{success: function(saved) {
+		console.log("Saved usergroup1: " + saved.xport());
+	}});
+	var usergroup2 = new models.UserGroup({userid:user.id,groupid:group2.id});
+	usergroup2.id = "group:" + group2.id + ":user:" + user.id;
+	usergroup2.save({},{success: function(saved) {
+		console.log("Saved usergroup2: " + saved.xport());
+
+	}});
+	// Will create the user group records with Redis keys= "usergroup:group:1:user:1" and "usergroup:group:2:user:1"
+
 
 # Acknowledgments
  
