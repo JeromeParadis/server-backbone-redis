@@ -1,3 +1,7 @@
+# Why?
+
+I created this module because in a socket.io app I'm working on, all data is created, processed and persisted on the server. By having the models on the server-side with a Redis data store, it is easy to persist the data. With the export/import to JSON from JSON functionality, I can easily push data to clients connected through socket.io. Then, on the client-side, I continue to use the backbone models within views to update the UI.
+
 # Documentation
 
 * [Wiki](https://github.com/JeromeParadis/server-backbone-redis/wiki)
@@ -38,9 +42,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 
-# Thanks
+# Acknowledgments
  
 * xport()/mport() code taken from this fine article: http://andyet.net/blog/2011/feb/15/re-using-backbonejs-models-on-the-server-with-node/
+* This article inspired me to add Node.js server-side Redis support to backbone
 
 # Disclaimer / To Do
 

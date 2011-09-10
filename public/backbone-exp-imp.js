@@ -1,3 +1,5 @@
+// Code from the &yet team post here: http://andyet.net/blog/2011/feb/15/re-using-backbonejs-models-on-the-server-with-node/
+
 (function () {
     var server = false, BackboneExpImp;
     if (typeof exports !== 'undefined') {
