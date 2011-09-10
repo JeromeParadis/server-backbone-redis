@@ -1,6 +1,7 @@
 # Documentation
 
 * [Wiki](https://github.com/JeromeParadis/server-backbone-redis/wiki)
+* or at the bottome of this README
 
 # Dependencies
 
