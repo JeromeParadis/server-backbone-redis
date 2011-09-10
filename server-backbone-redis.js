@@ -4,8 +4,6 @@
         redis = require('redis');
         utils = require('./lib/utils.js');
         
-        console.log("UTILS = " + utils);
-        
         BackboneExpImp = require('./public/backbone-exp-imp.js');
         BackboneServer = exports;
 	Backbone.Model.prototype.xport = BackboneExpImp.xport;
@@ -247,7 +245,8 @@
 
 	};
 	_.extend(BackboneServer,Backbone);
-	console.log(BackboneServer);
+	if (bbred.debug)
+		console.log(BackboneServer);
 	_.extend(BackboneServer,bbred);
 
 })()

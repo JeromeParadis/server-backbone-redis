@@ -1,0 +1,58 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+
+<title>Example</title> 
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script> 
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.1.7/underscore-min.js"></script> 
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.5.1/backbone-min.js"></script> 
+<script type="text/javascript" src="/models/models.js"></script> 
+<script type="text/javascript" src="/sbr/backbone-exp-imp.js"></script> 
+
+</head> 
+ 
+<body> 
+<div class="container">
+
+<h1>Server-side</h1>
+
+<h2>Server-side Added User 1</h2>
+<p>Name: <%= user1.get("name") %></p>
+<p>JSON: <%- user1.xport() %></p>
+
+<h2>Server-side Added User 2</h2>
+<p>Name: <%= user2.get("name") %></p>
+<p>JSON: <%- user2.xport() %></p>
+
+<h2>Server-side Search</h2>
+<p>Array results: <%- JSON.stringify(wrapper.get("users")) %></p>
+
+ 
+<h2>Push server-side backbone objects to client</h2>
+<script type="text/javascript">
+$(document).ready(function(){
+	var user1 = new models.User();
+	user1.mport('<%- user1.xport() %>');
+	$("#messages").append("<li>User 1 is " + user1.get("name") + "</li>");
+	var user2 = new models.User();
+	user2.mport('<%- user2.xport() %>');
+	$("#messages").append("<li>User 2 is " + user2.get("name") + "</li>");
+	var wrapper = new models.Wrapper();
+	wrapper.mport('<%- wrapper.xport() %>');
+	var users = new models.UsersCollection(wrapper.get('users'));
+	users.models.forEach(function(model,i) {
+		$("#messages").append("<li>Collection item 1 is " + model.get("name") + "; created on " + model.get("entry") + "</li>");
+	});
+	
+});
+</script>
+<h3>The following was written by client-side Javascript</h3>
+<ul id="messages"></ul>
+
+<h3>Cleanup</h3>
+<p><a href="cleanup">Click here to delete data.</a> or refresh page to create two other records.</p>
+
+</div>
+</body> 
+</html> 
+ 
