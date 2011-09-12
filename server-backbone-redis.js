@@ -93,7 +93,6 @@
 	Backbone.sync = function(method, model, options) {
 
 	  var model_name = model.name;
-	  var model_expiration = model.expiration;
 	  if (bbred.debug)
 	  	console.log("MODEL: " + model_name)
 	  if (!bbred.rc)
@@ -114,12 +113,12 @@
 					console.log("GET REPLY: " + reply);
 				if (reply) {
 					model.mport(reply);
-					options.success(model);
+					options.success && options.success(model);
 				}
 				else {
 					if (bbred.debug)
 						console.log("FETCH ERROR");
-					options.error(err);
+					options.error && options.error(err);
 				}
 			});
 		}
@@ -142,7 +141,7 @@
 						if (bbred.debug)
 							console.log("All " + model_name + "s: " + results);
 					}
-					options.success(models);
+					options.success && options.success(models);
 				});
 			    });
 		}
@@ -154,96 +153,75 @@
 				model.id = model.attributes.id = id;
 				if (bbred.debug)
 					console.log("ID = " + id + " object:" + model.xport());
-				if (model_expiration) {
-					rc.setex(model_name + ":" + model.id,model_expiration,model.xport(),function(e,r) {
-						if (bbred.debug) {
-							console.log("SET REPLY: " + r);
-							console.log("SET ERROR: " + e);
-						}
-						if (r) {
-							// TODO: CLONE!!!
-							options.success(model);
-						}
-						else {
-							if (bbred.debug)
-								console.log("SYNC ERROR: " + e);
-							options.error(e);
-						}
-					});					
-				}
-				else {
-					rc.set(model_name + ":" + model.id,model.xport(),function(e,r) {
-						if (bbred.debug) {
-							console.log("SET REPLY: " + r);
-							console.log("SET ERROR: " + e);
-						}
-						if (r) {
-							// TODO: CLONE!!!
-							options.success(model);
-						}
-						else {
-							if (bbred.debug)
-								console.log("SYNC ERROR: " + e);
-							options.error(e);
-						}
-					});
-					
-				}
+				setObject(model,options);
 			}
 			else {
 				if (bbred.debug)
 					console.log("INCR ERROR");
-				options.error(err);
+				options.error && options.error(err);
 			}
 		});
 	 	break;
 	    case "update":
 	    	if (bbred.debug)
 			console.log("UPDATE ID = " + model.id + " object:" + model.xport());
-		if (model_expiration) {
-			rc.setex(model_name + ":" + model.id,model.expiration,model.xport(),function(e,r) {
-				if (r) {
-					// TODO: CLONE!!!
-					options.success(model);
-				}
-				else {
-					if (bbred.debug)
-						console.log("SYNC ERROR: " + e);
-					options.error(e);
-				}
-			});
-		}
-		else {
-			rc.set(model_name + ":" + model.id,model.xport(),function(e,r) {
-				if (r) {
-					// TODO: CLONE!!!
-					options.success(model);
-				}
-				else {
-					if (bbred.debug)
-						console.log("SYNC ERROR: " + e);
-					options.error(e);
-				}
-			});			
-		}
+		setObject(model,options);
 	 	break;
 	    case "delete":
 		rc.del(model_name + ":" + model.id,function(e,r) {
 			if (r) {
 				if (bbred.debug)
 					console.log("DEL SUCCESS: " + r);
-				options.success(model);
+				options.success && options.success(model);
 			}
 			else {
 				if (bbred.debug)
 					console.log("DEL ERROR: " + e);
-				options.error(e);
+				options.error && options.error(e);
 			}
 		});
 	 	break;
 	  }
 
 	};
+	
+	var setObject = function(model,options) {
+		var model_expiration = model.expiration;		
+		var model_name = model.name;
+		
+		if (model_expiration) {
+			rc.setex(model_name + ":" + model.id,model_expiration,model.xport(),function(e,r) {
+				processSetResults(model,options,e,r);
+			});					
+		}
+		else {
+			rc.set(model_name + ":" + model.id,model.xport(),function(e,r) {
+				processSetResults(model,options,e,r);
+			});
+
+		}
+
+	};
+	
+	var processSetResults = function(model,options,e,r) {
+		if (bbred.debug) {
+			console.log("SET REPLY: " + r);
+			console.log("SET ERROR: " + e);
+		}
+		if (r) {
+			var new_data = model.clone();
+			new_data.clear({silent: true});
+			new_data.mport(r);
+			options.success && options.success(new_data);
+		}
+		else {
+			if (bbred.debug)
+				console.log("SYNC ERROR: " + e);
+			options.error && options.error(e);
+		}
+
+	};
+	
 	_.extend(BackboneServer,Backbone);
 	if (bbred.debug)
 		console.log(BackboneServer);
