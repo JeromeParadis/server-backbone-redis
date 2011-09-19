@@ -153,7 +153,7 @@
 				model.id = model.attributes.id = id;
 				if (bbred.debug)
 					console.log("ID = " + id + " object:" + model.xport());
-				setObject(model,options);
+				setObject(rc,model,options);
 			}
 			else {
 				if (bbred.debug)
@@ -165,7 +165,7 @@
 	    case "update":
 	    	if (bbred.debug)
 			console.log("UPDATE ID = " + model.id + " object:" + model.xport());
-		setObject(model,options);
+		setObject(rc,model,options);
 	 	break;
 	    case "delete":
 		rc.del(model_name + ":" + model.id,function(e,r) {
@@ -185,7 +185,7 @@
 
 	};
 	
-	var setObject = function(model,options) {
+	var setObject = function(rc,model,options) {
 		var model_expiration = model.expiration;		
 		var model_name = model.name;
 		
