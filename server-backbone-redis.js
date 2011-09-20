@@ -208,10 +208,12 @@
 			console.log("SET REPLY: " + r);
 			console.log("SET ERROR: " + e);
 		}
-		if (r) {
+		if (!e && r) {
 			var new_data = model.clone();
-			new_data.clear({silent: true});
-			new_data.mport(r);
+			if (r != "OK") {
+				new_data.clear({silent: true});
+				new_data.mport(r);
+			}
 			options.success && options.success(new_data);
 		}
 		else {
