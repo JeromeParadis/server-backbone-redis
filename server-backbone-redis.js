@@ -17,6 +17,7 @@
 	bbred.rc = null;
 	bbred.setClient = function(client) {
 		bbred.rc = client;
+		return true;
 	};
 	
 	bbred.debug = false;
