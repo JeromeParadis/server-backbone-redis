@@ -15,6 +15,14 @@ module.exports = testCase({
 		},
 		name: "testchat"
 	});
+	this.models.TestVolatile = Backbone.Model.extend({
+		defaults: {
+			"user":		null,
+			"message": 	null
+		},
+		name: "testvol",
+		expiration: 1 // 1 second expiration
+	});
 	this.models.TestChatMessageCollection = Backbone.Collection.extend({
 	    model: this.models.TestChatMessage
 	});
@@ -211,6 +219,50 @@ module.exports = testCase({
 				}, function(err) {
 					cb("Error cleaning up",4);
 			});
+		})
+		],function(err,results) {
+			if (err) {
+				throw new Error("Unexpected error running tests: " + err);
+			}
+			test.done();
+		}
+	);
+    },testVolatile: function (test) {
+	var models = this.models;
+	test.expect(4);
+	
+	var vol1 = new models.TestVolatile({id:"testvol1",message:'Test 1'});
+	async.series(
+		[async.apply(function(cb) {	//create record
+			vol1.save({id:"testvol1"},{success: function(model) {
+				test.equal(model.get("id"),"testvol1",'ID attribute not created.');
+				test.equal(model.id,"testvol1", 'ID object not created.');
+				cb(null,1);
+				}, error: function(err) {
+					cb("Error saving vol1",1);
+			}});
+		}),async.apply(function(cb) {  // check it was created
+			var vol_s = new models.TestVolatile({id: "testvol1"});
+			vol_s.fetch({success: function(model) {
+				test.equal(model.id,"testvol1",'Not the right record.');
+				cb(null,2);
+				}, error: function(err) {
+					cb("Error loading vol1",3);
+			}});
+		}),async.apply(function(cb) {  //wait more than one second
+			setTimeout(function() {
+				cb(null,3);
+			},1500);
+		}),async.apply(function(cb) {  //wait more than one second
+			var vol_s = new models.TestVolatile({id: "testvol1"});
+			vol_s.fetch({success: function(model) {
+					console.log("Volatile: " + model);
+					test.ok(false,'Volatile record found when should be deleted.');
+					cb(null,4);
+				}, error: function(err) {
+					test.ok(true);
+					cb(null,4);
+			}});			
 		})
 		],function(err,results) {
 			if (err) {
