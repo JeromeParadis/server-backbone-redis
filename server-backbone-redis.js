@@ -148,7 +148,7 @@
 		}
 	 	break;
 	    case "create": 
-		rc.incr("next." + model_name + ".id",function(err,reply) {
+		rc.incr(model_name + ".id.incr",function(err,reply) {
 			if (reply) {
 				var id = parseInt(reply);
 				model.id = model.attributes.id = id;
