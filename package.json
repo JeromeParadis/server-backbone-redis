@@ -12,5 +12,5 @@
   },
   "lib"           : "./lib",
   "main"          : "server-backbone-redis.js",
-  "version"       : "0.0.8"
+  "version"       : "0.0.9"
 }
